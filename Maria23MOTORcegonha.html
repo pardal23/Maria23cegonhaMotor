@@ -1,0 +1,205 @@
+<div>
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <!-- Deixa a página responsiva em telemóveis -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Título da Página</title>
+<style>
+h2{text-align:center; color:purple;}
+.maria{text-align:center; color:blak;}
+</style>
+
+</head>
+
+</body>
+
+
+
+
+
+
+<h2>Faça aqui as suas contas<br>Crie suas bases de dados e tudo mais<br>Enquanto trabalha consulte os seus arquivos do seu pc<br>Sem sair desta super ferramenta.</h2>
+
+<div id="conteudo" class="maria">
+<cegonha>
+
+cegonha(23^45)
+cegonha("<br>")
+cegonha(56*34/2)
+cegonha("<br>")
+
+</cegonha
+
+</div>
+
+<div id="conteudo1" class="maria1">
+<cegonha>
+
+a = 234*345/453+7865
+cegonha(a)
+cegonha("<br>as suas contas estão feitas com sucesso.")
+
+
+
+</cegonha>
+
+</div>
+<footer>
+    © pardal23 — Motor Cegonha
+</footer>
+
+
+
+
+    
+<script type="text/javascript">
+//<![CDATA[
+
+/* =========================
+   FUNÇÕES SEGURAS EXTRA
+   ========================= */
+
+// repetir texto n vezes
+function repetir(str, n) {
+    n = Number(n) || 0;
+    if (n < 0 || n > 1000) n = 0;
+    return String(str).repeat(n);
+}
+
+/* =========================
+   SANDBOX CEGONHA — MÁXIMA
+   ========================= */
+
+function sandboxCegonha(html) {
+    const proibidos = [
+        /window\b/i,
+        /document\b/i,
+        /eval\b/i,
+        /Function\b/i,
+        /onload\b/i,
+        /onerror\b/i,
+        /<script/i,
+        /<\/script/i
+    ];
+
+    return html.replace(/<cegonha>([\s\S]*?)<\/cegonha>/g, function(_, codigo) {
+        for (let r of proibidos) {
+            if (r.test(codigo)) {
+                return "<div style='color:red;padding:10px;border:2px solid red'>" +
+                       "ERRO: bloco cegonha bloqueado pela sandbox por segurança." +
+                       "</div>";
+            }
+        }
+        return "<cegonha>" + codigo + "</cegonha>";
+    });
+}
+
+/* =========================
+   MOTOR CEGONHA 2 — BASE
+   SEM LOOP, SEM ELSE
+   ========================= */
+
+function isExpressaoSegura(expr) {
+    // apenas números, operadores e parênteses
+    return /^[0-9+\-*/().\s%^]*$/.test(expr);
+}
+
+function avaliarExpressaoSegura(expr) {
+    expr = String(expr).trim();
+    if (!isExpressaoSegura(expr) || expr === "") return 0;
+    try {
+        // só operadores matemáticos, nada de nomes
+        return Function('"use strict"; return (' + expr + ')')();
+    } catch (e) {
+        return 0;
+    }
+}
+
+function executarCegonhaSeguro(html) {
+    return html.replace(/<cegonha>([\s\S]*?)<\/cegonha>/g, function(_, codigo) {
+
+        let vars = {};
+        let saida = "";
+
+        let linhas = codigo.split(/\r?\n/)
+            .map(l => l.trim())
+            .filter(l => l !== "");
+
+        linhas.forEach(l => {
+
+            // atribuição: a = 23**67/34
+            if (l.includes("=") && !l.startsWith("cegonha(")) {
+                let partes = l.split("=");
+                if (partes.length >= 2) {
+                    let nome = partes[0].trim();
+                    let valor = partes.slice(1).join("=").trim();
+
+                    if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(nome) && isExpressaoSegura(valor)) {
+                        vars[nome] = avaliarExpressaoSegura(valor);
+                    }
+                }
+                return;
+            }
+
+            // comando cegonha(...)
+            if (l.startsWith("cegonha(")) {
+                let conteudo = l.replace(/^cegonha\s*\(|\)$/g, "").trim();
+
+                // literal de string
+                if ((conteudo.startsWith('"') && conteudo.endsWith('"')) ||
+                    (conteudo.startsWith("'") && conteudo.endsWith("'"))) {
+                    saida += conteudo.slice(1, -1);
+                    return;
+                }
+
+                // variável simples
+                if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(conteudo) && conteudo in vars) {
+                    saida += vars[conteudo];
+                    return;
+                }
+
+                // expressão numérica segura
+                if (isExpressaoSegura(conteudo)) {
+                    saida += avaliarExpressaoSegura(conteudo);
+                    return;
+                }
+
+                // fallback: se não for nada disso, não executa
+                saida += "";
+            }
+        });
+
+        return "<div style='padding:10px;background:#eee;border-left:4px solid purple'>" +
+               saida +
+               "</div>";
+    });
+}
+
+/* =========================
+   INICIALIZAÇÃO — ANTI‑BLOGGER
+   encadeia com onload existente
+   ========================= */
+
+(function(oldOnload) {
+    window.onload = function(e) {
+        if (typeof oldOnload === "function") {
+            try { oldOnload(e); } catch (err) {}
+        }
+
+        document.querySelectorAll("div[id^='conteudo']")
+            .forEach(function(div) {
+                var seguro = sandboxCegonha(div.innerHTML);
+                div.innerHTML = executarCegonhaSeguro(seguro);
+            });
+    };
+})(window.onload);
+
+//]]>
+</script>
+
+
+</body>
+</html>
+</div>

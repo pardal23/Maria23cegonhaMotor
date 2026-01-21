@@ -1,0 +1,346 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Cegonha IDE Offline</title>
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f0f4f8;
+    text-align: center;
+}
+header {
+    background-color: #4caf50;
+    color: white;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+.editor {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px;
+}
+textarea {
+    width: 30%;
+    height: 250px;
+    font-family: monospace;
+    font-size: 14px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    resize: vertical;
+}
+button {
+    padding: 14px 25px;
+    margin: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #388e3c;
+}
+iframe {
+    width: 90%;
+    height: 500px;
+    border: 2px solid #4caf50;
+    border-radius: 10px;
+    background: white;
+    margin-top: 20px;
+}
+input[type="file"] {
+    padding: 10px;
+    margin: 10px;
+}
+</style>
+</head>
+<body>
+
+<header>Cegonha IDE Offline</header>
+
+<div class="editor">
+<textarea id="html" placeholder="HTML aqui...">
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Página Cegonha</title>
+<style>
+h2{text-align:center;color:purple;}
+.maria{text-align:center;color:#FFA500;}
+</style>
+</head>
+<body>
+
+<h2>Faça aqui as suas contas<br>Crie suas bases de dados e tudo mais<br>Enquanto trabalha consulte os seus arquivos do seu pc<br>Sem sair desta super ferramenta.</h2>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Motor Cegonha23</title>
+
+    <!-- Viewport para responsividade -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Estilos básicos e responsivos -->
+    <style>
+  h2{text-align:center; color:blue;}   
+.maria{text-align:center; color:orange;}
+      
+
+    </style>
+</head>
+<body>
+
+   <div id="conteudo" class="maria">
+    
+        <h1>Motor Cegonha23</h1>
+
+        
+        
+            <cegonha>
+a = "ola "
+b = "mundo"
+c = a + b
+cegonha(c)
+cegonha("<br>")
+d = "eu sou feliz"
+cegonha(d)
+cegonha("<br>")
+h = 23**34/4567
+k = "<br>seja feliz por favor"
+cegonha(h + k)
+cegonha("<br>")
+cegonha('<img src="https://images.unsplash.com/photo-1639884915700-e07ae0b82f0f?q=80&w=739&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" width="300px" height="250px">')
+            </cegonha>
+        
+    </div>
+
+    <!-- Motor Cegonha23 -->
+    <script>
+    // FUNÇÕES EXTRA
+    function repetir(str, n) {
+        n = Number(n) || 0;
+        if (n < 0 || n > 1000) n = 0;
+        return String(str).repeat(n);
+    }
+
+    // SANDBOX
+    function sandboxCegonha(html) {
+        const proibidos = [
+            /window\b/i, /document\b/i, /eval\b/i, /Function\b/i,
+            /onload\b/i, /onerror\b/i, /<script/i, /<\/script/i
+        ];
+        return html.replace(/<cegonha>([\s\S]*?)<\/cegonha>/g, function(_, codigo) {
+            for (let r of proibidos) {
+                if (r.test(codigo)) {
+                    return "<div style='color:red;padding:10px;border:2px solid red'>ERRO: bloco cegonha bloqueado pela sandbox.</div>";
+                }
+            }
+            return "<cegonha>" + codigo + "</cegonha>";
+        });
+    }
+
+    // MOTOR ORIGINAL
+    function isExpressaoSegura(expr) {
+        return /^[0-9+\-*/().\s%^]*$/.test(expr);
+    }
+    function avaliarExpressaoSegura(expr) {
+        expr = String(expr).trim();
+        if (!isExpressaoSegura(expr) || expr === "") return 0;
+        try { return Function('"use strict";return(' + expr + ')')(); }
+        catch (e) { return 0; }
+    }
+
+    // STRINGS + CONCATENAÇÃO
+    function avaliarValor(valor, vars) {
+        valor = valor.trim();
+
+        // STRING LITERAL
+        if (
+            (valor.startsWith('"') && valor.endsWith('"')) ||
+            (valor.startsWith("'") && valor.endsWith("'"))
+        ) {
+            return valor.slice(1, -1);
+        }
+
+        // CONCATENAÇÃO COM +
+        if (valor.includes("+")) {
+            let partes = valor.split("+").map(p => p.trim());
+            let resultado = "";
+
+            for (let p of partes) {
+
+                // literal
+                if (
+                    (p.startsWith('"') && p.endsWith('"')) ||
+                    (p.startsWith("'") && p.endsWith("'"))
+                ) {
+                    resultado += p.slice(1, -1);
+                    continue;
+                }
+
+                // variável
+                if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(p) && p in vars) {
+                    resultado += vars[p];
+                    continue;
+                }
+
+                // número
+                if (isExpressaoSegura(p)) {
+                    resultado += avaliarExpressaoSegura(p);
+                    continue;
+                }
+
+                return "";
+            }
+
+            return resultado;
+        }
+
+        // VARIÁVEL SIMPLES
+        if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valor) && valor in vars) {
+            return vars[valor];
+        }
+
+        // EXPRESSÃO NUMÉRICA
+        if (isExpressaoSegura(valor)) {
+            return avaliarExpressaoSegura(valor);
+        }
+
+        return "";
+    }
+
+    // EXECUÇÃO DO MOTOR
+    function executarCegonhaSeguro(html) {
+        return html.replace(/<cegonha>([\s\S]*?)<\/cegonha>/g, function(_, codigo) {
+            let vars = {};
+            let saida = "";
+            let linhas = codigo.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+
+            linhas.forEach(l => {
+
+                // ATRIBUIÇÃO
+                if (l.includes("=") && !l.startsWith("cegonha(")) {
+                    let partes = l.split("=");
+                    let nome = partes[0].trim();
+                    let valor = partes.slice(1).join("=").trim();
+
+                    if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(nome)) {
+                        vars[nome] = avaliarValor(valor, vars);
+                    }
+                    return;
+                }
+
+                // FUNÇÃO CEGONHA
+                if (l.startsWith("cegonha(")) {
+                    let conteudo = l.replace(/^cegonha\s*\(|\)$/g, "").trim();
+                    saida += avaliarValor(conteudo, vars);
+                    return;
+                }
+            });
+
+            return "<div style='padding:10px;background:#eee;border-left:4px solid purple'>" + saida + "</div>";
+        });
+    }
+
+    // INICIALIZAÇÃO
+    (function(oldOnload) {
+        window.onload = function(e) {
+            if (typeof oldOnload === "function") { try { oldOnload(e); } catch (err) {} }
+            document.querySelectorAll("div[id^='conteudo']").forEach(function(div) {
+                var seguro = sandboxCegonha(div.innerHTML);
+                div.innerHTML = executarCegonhaSeguro(seguro);
+            });
+        };
+    })(window.onload);
+    </script>
+</body>
+</html>
+</textarea>
+
+<textarea id="css" placeholder="CSS aqui...">h1{color:purple;text-align:center;}</textarea>
+<textarea id="js" placeholder="JS aqui...">console.log("Executado!");</textarea>
+</div>
+
+<div>
+<label for="fileUpload">📁 Upload de arquivos:</label>
+<input type="file" id="fileUpload" multiple>
+</div>
+
+<button onclick="executar()"▶️ Executar Código</button>
+<button onclick="limparEditor()">🧹 Limpar Editor</button>
+
+<iframe id="preview"></iframe>
+
+<script>
+function executar() {
+    const html = document.getElementById("html").value;
+    const css = `<style>${document.getElementById("css").value}</style>`;
+    const js = `<script>${document.getElementById("js").value}<\/script>`;
+    const code = html + css + js;
+    const iframe = document.getElementById("preview");
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(code);
+    doc.close();
+}
+
+function limparEditor() {
+    document.getElementById("html").value = "";
+    document.getElementById("css").value = "";
+    document.getElementById("js").value = "";
+}
+
+document.getElementById("fileUpload").addEventListener("change", function(event) {
+    const files = event.target.files;
+    const iframe = document.getElementById("preview");
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+    for (let file of files) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result;
+            const name = file.name.toLowerCase();
+
+            if (name.endsWith(".html") || name.endsWith(".htm")) {
+                document.getElementById("html").value = content;
+            } else if (name.endsWith(".css")) {
+                document.getElementById("css").value = content;
+            } else if (name.endsWith(".js")) {
+                document.getElementById("js").value = content;
+            } else if (file.type.startsWith("image/")) {
+                const url = URL.createObjectURL(file);
+                doc.open();
+                doc.write(`<img src="${url}" style="max-width:100%;height:auto;">`);
+                doc.close();
+            } else if (file.type.startsWith("video/")) {
+                const url = URL.createObjectURL(file);
+                doc.open();
+                doc.write(`<video controls style="max-width:100%;height:auto;"><source src="${url}" type="${file.type}"></video>`);
+                doc.close();
+            } else {
+                alert("Formato não suportado: " + file.name);
+            }
+        };
+        if (file.type.startsWith("text") || name.endsWith(".html") || name.endsWith(".css") || name.endsWith(".js")) {
+            reader.readAsText(file);
+        } else {
+            reader.readAsDataURL(file);
+        }
+    }
+});
+</script>
+
+</body>
+</html>

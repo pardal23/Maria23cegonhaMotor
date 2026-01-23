@@ -59,6 +59,29 @@
 </div>
 
 <script>
+    /* ============================
+       SEGURANÇA FORTE (C)
+       ============================ */
+
+    function urlSegura(url) {
+        url = String(url).trim();
+        if (/^(javascript|data|vbscript):/i.test(url)) return "#";
+        if (/^(https?|mailto):/i.test(url)) return url;
+        if (url.startsWith("/") || url.startsWith("./") || url.startsWith("../")) return url;
+        return "#";
+    }
+
+    function limparAtributos(estilo) {
+        if (!estilo) return "";
+        return estilo
+            .replace(/on[a-z]+\s*=/gi, "")   // remove onclick, onload, etc.
+            .replace(/javascript:/gi, "");   // remove javascript:
+    }
+
+    /* ============================
+       FUNÇÕES ORIGINAIS
+       ============================ */
+
     function repetir(str, n) {
         n = Math.floor(Number(n)) || 0;
         if (n < 0 || n > 1000) n = 0;
@@ -126,6 +149,10 @@
         return "";
     }
 
+    /* ============================
+       MOTOR PRINCIPAL
+       ============================ */
+
     function executarCegonhaSeguro(html) {
         return html.replace(/<cegonha>([\s\S]*?)<\/cegonha>/g, function(_, codigo) {
             let vars = {};
@@ -146,15 +173,39 @@
 
                     let estilo = "";
                     if (cor) estilo += `color:${cor};`;
-                    if (estiloExtra) estilo += estiloExtra;
+                    if (estiloExtra) estilo += limparAtributos(estiloExtra);
 
                     let attrClass = classe ? ` class="${classe}"` : "";
                     let attrStyle = estilo ? ` style="${estilo}"` : "";
 
+                    /* ============================
+                       TAG IMG SEGURA
+                       ============================ */
                     if (tag.toLowerCase() === "img") {
-                        saida += `<img src="${texto}"${attrClass}${attrStyle}>`;
+                        let src = urlSegura(texto);
+                        saida += `<img src="${src}"${attrClass}${attrStyle}>`;
                     }
 
+                    /* ============================
+                       TAG A SEGURA
+                       ============================ */
+                    else if (tag.toLowerCase() === "a") {
+                        let href = texto;
+
+                        if (estiloExtra && estiloExtra.includes("href:")) {
+                            let m = estiloExtra.match(/href:([^;]+)/);
+                            if (m) href = m[1].trim();
+                            estiloExtra = estiloExtra.replace(/href:[^;]+;?/, "");
+                        }
+
+                        href = urlSegura(href);
+
+                        saida += `<a href="${href}"${attrClass}${attrStyle} target="_blank" rel="noopener noreferrer">${texto}</a>`;
+                    }
+
+                    /* ============================
+                       TODAS AS OUTRAS TAGS (DIV INCLUÍDA)
+                       ============================ */
                     else {
                         saida += `<${tag}${attrClass}${attrStyle}>${texto}</${tag}>`;
                     }
@@ -192,5 +243,3 @@
 
 </body>
 </html>
-
-

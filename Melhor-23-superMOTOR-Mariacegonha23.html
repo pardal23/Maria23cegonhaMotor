@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Motor Cegonha Atualizado</title>
+</head>
+<body>
+
+<div id="conteudo" class="maria">
+    <cegonha>
+        s1 = "o sonho "
+        s2 = "a sombra "
+        s3 = "a luz "
+
+        v1 = "abraça "
+        v2 = "transforma "
+        v3 = "desperta "
+
+        o1 = "o infinito"
+        
+        resultado = s3 + v2 + o1
+        cegonha(resultado)
+        cegonha("<br>")
+
+        -- Exemplo solicitado: maria 23 vezes --
+        m = "maria "
+        repeticao = m * 23
+        cegonha(repeticao)
+        cegonha("<br><br>")
+
+        -- EXEMPLOS DO criar() --
+        criar("h1", "Título Roxo", "titulo", "purple")
+        criar("p", "Texto azul e grande", "texto-grande", "blue", "font-size:22px;")
+        criar("div", "Sou uma div simples")
+        criar("span", "Texto verde", "", "green")
+        criar("img", "https://via.placeholder.com/150", "foto", "", "border-radius:10px;")
+
+        -- exemplos de links --
+        criar("a", "https://google.com", "link-simples", "blue")
+        cegonha("<br>")
+        criar("a", "Google", "link-google", "red", "href:https://google.com;")
+        cegonha("<br>")
+
+        a = 23**45/234
+        cegonha(a)
+        cegonha("<br>")
+
+        b = 43567+7869-3456
+        cegonha(b)
+        cegonha("<br>")
+
+        criar("h2", "seja feliz por favor", "cor", "red")
+        
+        a = 23**24/5648
+        cegonha(a)
+        cegonha("<br>")
+        criar("p", "ola mundo", "cor",  "green")
+    </cegonha>
+</div>
+
+<script>
+    function repetir(str, n) {
+        n = Math.floor(Number(n)) || 0;
+        if (n < 0 || n > 1000) n = 0;
+        return String(str).repeat(n);
+    }
+
+    function sandboxCegonha(html) {
+        const proibidos = [/window\b/i, /document\b/i, /eval\b/i, /Function\b/i, /onload\b/i, /onerror\b/i, /<script/i, /<\/script/i];
+        return html.replace(/<cegonha>([\s\S]*?)<\/cegonha>/g, function(_, codigo) {
+            for (let r of proibidos) { if (r.test(codigo)) return "<div style='color:red'>ERRO: Sandbox</div>"; }
+            return "<cegonha>" + codigo + "</cegonha>";
+        });
+    }
+
+    function isExpressaoSegura(expr) {
+        return /^[0-9+\-*/().\s%^]*$/.test(expr);
+    }
+
+    function avaliarExpressaoSegura(expr) {
+        expr = String(expr).trim();
+        if (!isExpressaoSegura(expr) || expr === "") return 0;
+        try { return Function('"use strict";return(' + expr + ')')(); }
+        catch (e) { return 0; }
+    }
+
+    function avaliarValor(valor, vars) {
+        valor = valor.trim();
+
+        if ((valor.startsWith('"') && valor.endsWith('"')) || (valor.startsWith("'") && valor.endsWith("'"))) {
+            return valor.slice(1, -1);
+        }
+
+        if (isExpressaoSegura(valor)) {
+            let num = avaliarExpressaoSegura(valor);
+            if (!isNaN(num)) return num;
+        }
+
+        if (valor.includes("*")) {
+            let partes = valor.split("*").map(p => p.trim());
+            if (partes.length === 2) {
+                let vEsq = avaliarValor(partes[0], vars);
+                let vDir = avaliarValor(partes[1], vars);
+
+                if (isNaN(vEsq) && !isNaN(vDir)) return repetir(vEsq, vDir);
+                if (!isNaN(vEsq) && isNaN(vDir)) return repetir(vDir, vEsq);
+            }
+        }
+
+        if (valor.includes("+") || valor.includes(".")) {
+            let sep = valor.includes("+") ? "+" : ".";
+            let partes = valor.split(sep).map(p => p.trim());
+            let out = "";
+            for (let p of partes) out += avaliarValor(p, vars);
+            return out;
+        }
+
+        if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valor) && valor in vars) {
+            return vars[valor];
+        }
+
+        if (isExpressaoSegura(valor)) {
+            return avaliarExpressaoSegura(valor);
+        }
+
+        return "";
+    }
+
+    function executarCegonhaSeguro(html) {
+        return html.replace(/<cegonha>([\s\S]*?)<\/cegonha>/g, function(_, codigo) {
+            let vars = {};
+            let saida = "";
+            let linhas = codigo.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "" && !l.startsWith("--"));
+
+            linhas.forEach(l => {
+
+                if (l.startsWith("criar(")) {
+                    let conteudo = l.replace(/^criar\s*\(|\)$/g, "").trim();
+                    let partes = conteudo.split(",").map(p => p.trim());
+
+                    let tag = avaliarValor(partes[0], vars);
+                    let texto = avaliarValor(partes[1], vars);
+                    let classe = partes[2] ? avaliarValor(partes[2], vars) : "";
+                    let cor = partes[3] ? avaliarValor(partes[3], vars) : "";
+                    let estiloExtra = partes[4] ? avaliarValor(partes[4], vars) : "";
+
+                    let estilo = "";
+                    if (cor) estilo += `color:${cor};`;
+                    if (estiloExtra) estilo += estiloExtra;
+
+                    let attrClass = classe ? ` class="${classe}"` : "";
+                    let attrStyle = estilo ? ` style="${estilo}"` : "";
+
+                    if (tag.toLowerCase() === "img") {
+                        saida += `<img src="${texto}"${attrClass}${attrStyle}>`;
+                    }
+
+                    else {
+                        saida += `<${tag}${attrClass}${attrStyle}>${texto}</${tag}>`;
+                    }
+                }
+
+                else if (l.includes("=") && !l.startsWith("cegonha(")) {
+                    let partes = l.split("=");
+                    let nome = partes[0].trim();
+                    let valor = partes.slice(1).join("=").trim();
+                    if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(nome)) {
+                        vars[nome] = avaliarValor(valor, vars);
+                    }
+                }
+
+                else if (l.startsWith("cegonha(")) {
+                    let conteudo = l.replace(/^cegonha\s*\(|\)$/g, "").trim();
+                    saida += avaliarValor(conteudo, vars);
+                }
+            });
+
+            return "<div style='padding:10px;background:#eee;border-left:4px solid purple;word-wrap:break-word;'>" + saida + "</div>";
+        });
+    }
+
+    (function(oldOnload) {
+        window.onload = function(e) {
+            if (typeof oldOnload === "function") { try { oldOnload(e); } catch (err) {} }
+            document.querySelectorAll("div[id^='conteudo']").forEach(function(div) {
+                var seguro = sandboxCegonha(div.innerHTML);
+                div.innerHTML = executarCegonhaSeguro(seguro);
+            });
+        };
+    })(window.onload);
+</script>
+
+</body>
+</html>
+
+
